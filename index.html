@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Blackjack Scorekeeper</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-gold: #eab308;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 10px;
+        }
+
+        header h1 {
+            color: var(--accent-gold);
+            font-size: 1.5rem;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            flex: 1;
+            font-size: 16px; 
+            outline: none;
+        }
+
+        button {
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:active {
+            opacity: 0.7;
+            transform: scale(0.98);
+        }
+
+        button.btn-danger {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        button.btn-secondary {
+            background: var(--border-color);
+            color: #fff;
+            padding: 6px 12px;
+            min-height: auto;
+        }
+
+        .player-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .player-row:last-child {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-positive { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); }
+        .badge-negative { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .badge-neutral { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); }
+
+        .round-player-card {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .outcome-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .outcome-btn {
+            background: #1e293b;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px 4px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+        }
+
+        .outcome-btn.active-win { background: var(--accent-green); color: #000; font-weight: bold; border-color: var(--accent-green); }
+        .outcome-btn.active-bj { background: var(--accent-gold); color: #000; font-weight: bold; border-color: var(--accent-gold); }
+        .outcome-btn.active-push { background: var(--border-color); color: #fff; font-weight: bold; }
+        .outcome-btn.active-loss { background: var(--accent-red); color: #fff; font-weight: bold; border-color: var(--accent-red); }
+
+        .settlement-item {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--accent-gold);
+            font-size: 0.95rem;
+        }
+
+        .history-list {
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .history-item {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>♠️ Blackjack Ledger ♣️</h1>
+    <p style="color: var(--text-muted); font-size: 0.8rem;">Controle de Mesa & Acerto de Contas</p>
+</header>
+
+<!-- JOGADORES -->
+<div class="card">
+    <h2>1. Jogadores</h2>
+    <div class="input-group">
+        <input type="text" id="playerName" placeholder="Nome do Jogador">
+        <button onclick="addPlayer()">+ Add</button>
+    </div>
+    <div id="playersList"></div>
+</div>
+
+<!-- NOVA RODADA -->
+<div class="card">
+    <h2>2. Registrar Rodada</h2>
+    <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Quem é o Dealer/Banca?</label>
+        <select id="dealerSelect" onchange="renderRoundInputs()">
+            <option value="house">Banca da Mesa (Fixa)</option>
+        </select>
+    </div>
+    
+    <div id="roundInputs"></div>
+    
+    <button onclick="submitRound()" style="width: 100%; margin-top: 10px; background: var(--accent-gold);">Finalizar Rodada</button>
+</div>
+
+<!-- ACERTO DE CONTAS -->
+<div class="card">
+    <h2>3. Acerto de Contas (PIX)</h2>
+    <div id="settlementList">
+        <p style="color: var(--text-muted); font-size:0.9rem;">Nenhuma dívida pendente.</p>
+    </div>
+</div>
+
+<!-- HISTÓRICO -->
+<div class="card">
+    <h2>
+        4. Histórico
+        <button onclick="undoLastRound()" class="btn-secondary" style="font-size: 0.75rem;">↩ Desfazer</button>
+    </h2>
+    <div id="historyList" class="history-list"></div>
+</div>
+
+<script>
+    let players = [];
+    let history = [];
+
+    function addPlayer() {
+        const input = document.getElementById('playerName');
+        const name = input.value.trim();
+        if (!name) return;
+        
+        if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+            alert('Jogador já cadastrado!');
+            return;
+        }
+
+        players.push({
+            id: Date.now(),
+            name: name,
+            balance: 0,
+            stats: { win: 0, loss: 0, push: 0, bj: 0 }
+        });
+
+        input.value = '';
+        updateUI();
+    }
+
+    // MODIFICAÇÃO: Função atualizada com a tela de confirmação
+    function removePlayer(id) {
+        const player = players.find(p => p.id === id);
+        if (player) {
+            const confirmDelete = confirm(`Tem certeza que deseja excluir o jogador "${player.name}" da mesa?\n\n(Isso não afeta o histórico de rodadas passadas, mas apagará ele dos cálculos finais.)`);
+            if (confirmDelete) {
+                players = players.filter(p => p.id !== id);
+                updateUI();
+            }
+        }
+    }
+
+    function updateDealerSelect() {
+        const select = document.getElementById('dealerSelect');
+        const currentValue = select.value;
+        select.innerHTML = '<option value="house">Banca da Mesa (Externa)</option>';
+        players.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.name} (Dealer)</option>`;
+        });
+        select.value = currentValue;
+    }
+
+    function renderRoundInputs() {
+        const container = document.getElementById('roundInputs');
+        const dealerId = document.getElementById('dealerSelect').value;
+        container.innerHTML = '';
+
+        const activePlayers = players.filter(p => p.id.toString() !== dealerId);
+
+        if (activePlayers.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-muted); font-size:0.9rem;">Adicione jogadores para iniciar.</p>';
+            return;
+        }
+
+        activePlayers.forEach(p => {
+            container.innerHTML += `
+                <div class="round-player-card" id="card-${p.id}">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>${p.name}</strong>
+                        <input type="number" id="bet-${p.id}" placeholder="Aposta" style="width: 100px; padding:6px 10px;" value="10" min="1">
+                    </div>
+                    <div class="outcome-selector">
+                        <button type="button" class="outcome-btn active-win" onclick="setOutcome(${p.id}, 'win')">Vitória (1x)</button>
+                        <button type="button" class="outcome-btn" onclick="setOutcome(${p.id}, 'bj')">BJ (1.5x)</button>
+                        <button type="button" class="outcome-btn" onclick="setOutcome(${p.id}, 'push')">Empate</button>
+                        <button type="button" class="outcome-btn" onclick="setOutcome(${p.id}, 'loss')">Derrota</button>
+                    </div>
+                    <input type="hidden" id="outcome-${p.id}" value="win">
+                </div>
+            `;
+        });
+    }
+
+    function setOutcome(playerId, outcome) {
+        document.getElementById(`outcome-${playerId}`).value = outcome;
+        const card = document.getElementById(`card-${playerId}`);
+        const buttons = card.querySelectorAll('.outcome-btn');
+        
+        buttons.forEach(btn => btn.className = 'outcome-btn');
+        
+        if (outcome === 'win') buttons[0].classList.add('active-win');
+        if (outcome === 'bj') buttons[1].classList.add('active-bj');
+        if (outcome === 'push') buttons[2].classList.add('active-push');
+        if (outcome === 'loss') buttons[3].classList.add('active-loss');
+    }
+
+    function submitRound() {
+        const dealerId = document.getElementById('dealerSelect').value;
+        const activePlayers = players.filter(p => p.id.toString() !== dealerId);
+        if (activePlayers.length === 0) return;
+
+        const roundData = {
+            id: Date.now(),
+            dealerId: dealerId,
+            changes: []
+        };
+
+        let totalDealerNet = 0;
+
+        for (let p of activePlayers) {
+            const bet = parseFloat(document.getElementById(`bet-${p.id}`).value) || 0;
+            const outcome = document.getElementById(`outcome-${p.id}`).value;
+            let net = 0;
+
+            if (outcome === 'win') {
+                net = bet;
+                p.stats.win++;
+            } else if (outcome === 'bj') {
+                net = bet * 1.5;
+                p.stats.bj++;
+            } else if (outcome === 'loss') {
+                net = -bet;
+                p.stats.loss++;
+            } else {
+                p.stats.push++;
+            }
+
+            p.balance += net;
+            totalDealerNet -= net;
+
+            roundData.changes.push({ playerId: p.id, net: net, outcome: outcome, bet: bet });
+        }
+
+        if (dealerId !== 'house') {
+            const dealer = players.find(p => p.id.toString() === dealerId);
+            if (dealer) {
+                dealer.balance += totalDealerNet;
+                roundData.changes.push({ playerId: dealer.id, net: totalDealerNet, isDealer: true });
+            }
+        }
+
+        history.unshift(roundData);
+        updateUI();
+    }
+
+    function undoLastRound() {
+        if (history.length === 0) return;
+        const lastRound = history.shift();
+
+        lastRound.changes.forEach(change => {
+            const player = players.find(p => p.id === change.playerId);
+            if (player) {
+                player.balance -= change.net;
+                if (!change.isDealer) {
+                    if (change.outcome === 'win') player.stats.win--;
+                    if (change.outcome === 'bj') player.stats.bj--;
+                    if (change.outcome === 'loss') player.stats.loss--;
+                    if (change.outcome === 'push') player.stats.push--;
+                }
+            }
+        });
+
+        updateUI();
+    }
+
+    function calculateSettlement() {
+        let debtors = [];
+        let creditors = [];
+
+        players.forEach(p => {
+            if (p.balance < -0.01) debtors.push({ name: p.name, amount: -p.balance });
+            if (p.balance > 0.01) creditors.push({ name: p.name, amount: p.balance });
+        });
+
+        debtors.sort((a, b) => b.amount - a.amount);
+        creditors.sort((a, b) => b.amount - a.amount);
+
+        const transactions = [];
+        let i = 0, j = 0;
+
+        while (i < debtors.length && j < creditors.length) {
+            let debt = debtors[i].amount;
+            let credit = creditors[j].amount;
+            let payment = Math.min(debt, credit);
+
+            transactions.push(`<strong>${debtors[i].name}</strong> paga <strong>R$ ${payment.toFixed(2)}</strong> para <strong>${creditors[j].name}</strong>`);
+
+            debtors[i].amount -= payment;
+            creditors[j].amount -= payment;
+
+            if (debtors[i].amount < 0.01) i++;
+            if (creditors[j].amount < 0.01) j++;
+        }
+
+        const container = document.getElementById('settlementList');
+        if (transactions.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-muted); font-size:0.9rem;">Todos estão quitados ou com saldo zero.</p>';
+        } else {
+            container.innerHTML = transactions.map(t => `<div class="settlement-item">${t}</div>`).join('');
+        }
+    }
+
+    function updateUI() {
+        const playersList = document.getElementById('playersList');
+        playersList.innerHTML = '';
+        
+        players.forEach(p => {
+            const badgeClass = p.balance > 0 ? 'badge-positive' : (p.balance < 0 ? 'badge-negative' : 'badge-neutral');
+            const sign = p.balance > 0 ? '+' : '';
+            playersList.innerHTML += `
+                <div class="player-row">
+                    <div>
+                        <strong>${p.name}</strong>
+                        <div style="font-size:0.75rem; color:var(--text-muted)">V:${p.stats.win} | BJ:${p.stats.bj} | E:${p.stats.push} | D:${p.stats.loss}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="badge ${badgeClass}">${sign}R$ ${p.balance.toFixed(2)}</span>
+                        <button onclick="removePlayer(${p.id})" class="btn-danger" style="padding:4px 8px; min-height:auto; font-size:0.75rem;">✕</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        const historyList = document.getElementById('historyList');
+        historyList.innerHTML = history.length === 0 ? '<p>Nenhuma rodada gravada.</p>' : '';
+        history.forEach((r, idx) => {
+            const details = r.changes.filter(c => !c.isDealer).map(c => {
+                const p = players.find(x => x.id === c.playerId);
+                return `${p ? p.name : '?'}: ${c.net >= 0 ? '+' : ''}${c.net}`;
+            }).join(', ');
+            historyList.innerHTML += `<div class="history-item">#${history.length - idx}: ${details}</div>`;
+        });
+
+        updateDealerSelect();
+        renderRoundInputs();
+        calculateSettlement();
+    }
+
+    updateUI();
+</script>
+
+</body>
+</html>
